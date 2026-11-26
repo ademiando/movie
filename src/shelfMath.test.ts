@@ -16,13 +16,18 @@ import {
   wrapRel,
 } from './shelfMath';
 
-test('FILMS data matches chronological order and starts on Noon in Ashes at index 5', () => {
-  assert.equal(FILMS.length, 12);
-  assert.equal(FILMS[0].id, 'valley');
-  assert.equal(FILMS[5].id, 'noon');
-  assert.equal(FILMS[5].title, 'Noon in Ashes');
-  assert.equal(FILMS[5].year, 1971);
-  assert.equal(FILMS[11].id, 'door');
+test('FILMS data keeps White Clover intact and replaces other 12 films with modern releases', () => {
+  assert.equal(FILMS.length, 13);
+  assert.equal(FILMS[0].id, 'clover');
+  assert.equal(FILMS[0].year, 1987);
+  assert.equal(FILMS[0].customAsset, '/assets/aistudio/PixVerse_Image_Effect_prompt__1__91dbbeb1.png');
+  assert.equal(FILMS[2].id, 'spiderman');
+  assert.equal(FILMS[4].id, 'summer500');
+  assert.equal(FILMS[5].id, 'avengers');
+  assert.equal(FILMS[6].id, 'johnwick');
+  assert.equal(FILMS[6].title, 'John Wick');
+  assert.equal(FILMS[6].year, 2014);
+  assert.equal(FILMS[12].id, 'barbie');
 });
 
 test('smoothstep and smoothStepB continuity and boundaries', () => {
@@ -50,11 +55,11 @@ test('shelfX separates neighbours around open cover by exact half extra width', 
   assert.ok(Math.abs(x1 - expectedX1) < 1e-9);
 });
 
-test('wrapRel wraps 36 virtual tapes into [-18, +18)', () => {
-  assert.equal(wrapRel(17, 17, 36), 0);
-  assert.equal(wrapRel(0, 17, 36), -17);
-  assert.equal(wrapRel(35, 17, 36), -18);
-  assert.equal(wrapRel(34, 17, 36), 17);
+test('wrapRel wraps 39 virtual tapes into [-19.5, +19.5)', () => {
+  assert.equal(wrapRel(18, 18, 39), 0);
+  assert.equal(wrapRel(0, 18, 39), -18);
+  assert.equal(wrapRel(38, 18, 39), -19);
+  assert.equal(wrapRel(37, 18, 39), 19);
 });
 
 test('computeTapeTransform computes active vs spine faces accurately', () => {
@@ -81,28 +86,30 @@ test('computeTapeTransform computes active vs spine faces accurately', () => {
   assert.equal(spine.coverShade, 0.5);
 });
 
-test('shortestLoopTarget picks shortest path around 12-film loop', () => {
-  // From index 5 (s=17) to index 0 (valley): -5 is shorter than +7
-  assert.equal(shortestLoopTarget(17, 0, 12), 12);
-  // From index 0 (s=12) to index 11 (door): -1 is shorter than +11
-  assert.equal(shortestLoopTarget(12, 11, 12), 11);
-  // From index 11 (s=23) to index 1 (bluehour): +2 is shorter than -10
-  assert.equal(shortestLoopTarget(23, 1, 12), 25);
+test('shortestLoopTarget picks shortest path around 13-film loop', () => {
+  // From index 6 (s=19) to index 0 (clover): -6 is shorter than +7
+  assert.equal(shortestLoopTarget(19, 0, 13), 13);
+  // From index 0 (s=13) to index 12 (barbie): -1 is shorter than +12
+  assert.equal(shortestLoopTarget(13, 12, 13), 12);
+  // From index 12 (s=25) to index 1 (fightclub): +2 is shorter than -11
+  assert.equal(shortestLoopTarget(25, 1, 13), 27);
 });
 
 test('decadeForYear and crop math produce exact coordinates', () => {
-  assert.equal(decadeForYear(1958), 1950);
-  assert.equal(decadeForYear(1971), 1970);
+  assert.equal(decadeForYear(1987), 1980);
+  assert.equal(decadeForYear(2009), 2000);
+  assert.equal(decadeForYear(2023), 2020);
 
-  const noon = FILMS[5];
-  const bg = cropBackgroundCss(noon.cover, SHEETS);
+  const johnWick = FILMS[6];
+  const bg = cropBackgroundCss(johnWick.cover, SHEETS);
   assert.equal(bg.url, SHEETS.covers.url);
   assert.ok(bg.size.includes('%'));
   assert.ok(bg.position.includes('%'));
 
-  const svg = posterSvgCoords(noon.cover, SHEETS);
+  const svg = posterSvgCoords(johnWick.cover, SHEETS);
   assert.equal(svg.href, SHEETS.covers.url);
-  assert.ok(svg.x < 0 && svg.y < 0);
+  assert.equal(svg.x, 0);
+  assert.equal(svg.y, 0);
   assert.ok(svg.width > 474 && svg.height > 900);
-  assert.equal(mod(-1, 12), 11);
+  assert.equal(mod(-1, 13), 12);
 });
