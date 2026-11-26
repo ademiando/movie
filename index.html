@@ -926,7 +926,7 @@
           minutes: 106,
           director: "Netflix Archive",
           synopsis: "On an overgrown hillside above the coast, two lovers spend one sunlit afternoon pretending the summer has nowhere to go.",
-          customAsset: "/assets/aistudio/PixVerse_Image_Effect_prompt__1__91dbbeb1.png",
+          customAsset: "./assets/aistudio/PixVerse_Image_Effect_prompt__1__91dbbeb1.png",
           box: {
             bg: "#1B2A1E",
             bg2: "#0D170F",
@@ -983,7 +983,7 @@
           minutes: 121,
           director: "Sam Raimi",
           synopsis: "After a genetically altered spider bite grants him extraordinary powers, Peter Parker learns that with great power comes great responsibility.",
-          customAsset: "/assets/aistudio/eca808eadebe821251c28912fa7515b3_ec6546a8.jpg",
+          customAsset: "./assets/aistudio/eca808eadebe821251c28912fa7515b3_ec6546a8.jpg",
           box: {
             bg: "#8D181E",
             bg2: "#13223D",
@@ -1040,7 +1040,7 @@
           minutes: 95,
           director: "Marc Webb",
           synopsis: "A hopeless romantic greeting-card writer reflects on the 500 days he spent falling in and out of love with Summer Finn.",
-          customAsset: "/assets/aistudio/371d09b7cceed0256e8ad4f01b9fa9d8_7bc91a5d.jpg",
+          customAsset: "./assets/aistudio/371d09b7cceed0256e8ad4f01b9fa9d8_7bc91a5d.jpg",
           box: {
             bg: "#EFE7D6",
             bg2: "#2B6B76",
@@ -2287,6 +2287,13 @@
           coverUrl: buildModernCoverUrl(film, idx, null)
         };
         if (film.customAsset) {
+          const cleanPath = film.customAsset.replace(/^\.?\//, "");
+          const candidates = [
+            `./${cleanPath}`,
+            `./public/${cleanPath}`,
+            `/${cleanPath}`
+          ];
+          let attempt = 0;
           const img = new Image();
           img.onload = () => {
             MODERN_ASSETS[film.id] = {
@@ -2303,7 +2310,13 @@
               dPosterImg.setAttribute("href", MODERN_ASSETS[film.id].coverUrl);
             }
           };
-          img.src = film.customAsset;
+          img.onerror = () => {
+            attempt += 1;
+            if (attempt < candidates.length) {
+              img.src = candidates[attempt];
+            }
+          };
+          img.src = candidates[0];
         }
       });
 
